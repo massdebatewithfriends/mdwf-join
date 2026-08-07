@@ -156,12 +156,12 @@
       <div id="pwBlock">
         <label id="pwLabel" for="pw">This room has a password</label>
         <input id="pw" type="password" placeholder="Ask the host" autocomplete="off" aria-label="Room password">
-        <div class="voyeurNote">No password? You can still slip in as a <b>Voyeur</b> — the watch-only
-        seat. Ask the host to wave you in from Backstage if you want a real chair.</div>
+        <div class="voyeurNote">No password? Join anyway — you slip in the back door as a <b>Spectator</b>:
+        watch-only, in the dark. Ask to join from your phone and the host can wave you into the crowd.</div>
       </div>
 
       <button class="btn" id="joinBtn" type="button">Join</button>
-      <button class="btn-ghost" id="voyeurBtn" type="button" style="display:none">No password — sneak in as a Voyeur →</button>
+      <button class="btn-ghost" id="voyeurBtn" type="button" style="display:none">No password — slip in the back door →</button>
 
       <div id="status" role="alert"></div>
 
@@ -182,8 +182,9 @@
         else joins from their phone with the 4-character code on that screen.
         <div class="rolegrid">
           <div class="role"><i>Debater</i><span>On stage, arguing. The room decides your fate.</span></div>
-          <div class="role"><i>Spectator</i><span>In the crowd — voting, swaying, heckling via live Q&amp;A.</span></div>
-          <div class="role"><i>Voyeur</i><span>Watching from the dark. The host can pull you into the room from Backstage.</span></div>
+          <div class="role"><i>Voyeur</i><span>In the crowd — voting, swaying, heckling via live Q&amp;A — and free to hop between crowd and stage whenever the game allows.</span></div>
+          <div class="role"><i>Spectator</i><span>Watch-only, in the dark. Locked rooms start newcomers here — ask to join and the host can wave you into the crowd.</span></div>
+          <div class="role"><i>Host</i><span>Runs the show from the big screen — topics, timers, and who gets through the door.</span></div>
         </div>
       </div>
     </details>
@@ -194,7 +195,7 @@
     <span>·</span>
     <a id="patreonFoot" href="https://www.patreon.com/MassDebateWithFriends">Patreon</a>
     <span>·</span>
-    <span>© 2026 Alchemist Production</span>
+    <span>© 2026 Alchemist Production Design</span>
   </footer>
 
 <script>
@@ -206,7 +207,7 @@
           Leave "" until the Worker is deployed — the page then runs in
           closed-alpha mode (QR/bridge links still work).               */
   var CFG = {
-    API: "",
+    API: "https://api.mdwf.app",
     CLIENT_PATH: "/client",
     MAIN_SITE: "https://www.massdebatewithfriends.com",
     PATREON: "https://www.patreon.com/MassDebateWithFriends"
