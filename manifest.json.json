@@ -1,0 +1,21 @@
+{
+  "name": "MassDebate with Friends",
+  "short_name": "MassDebate",
+  "description": "Type the room code from the host screen and jump into the debate from your phone.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090909",
+  "theme_color": "#090909",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
