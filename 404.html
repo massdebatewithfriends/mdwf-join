@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Join a game: MassDebate with Friends</title>
-<meta name="description" content="Type the room code from the host screen, then pick your seat: play on your phone as a controller, or watch the big screen live as a viewer.">
+<meta name="description" content="Type the room code from the host screen, then pick your seat: join as a player on your phone, or watch the big screen live as a viewer.">
 <link rel="canonical" href="https://mdwf.app/">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#090909">
@@ -13,12 +13,12 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="MassDebate with Friends">
 <meta property="og:title" content="Join a game: MassDebate with Friends">
-<meta property="og:description" content="Got a room code? Type it in, then play on your phone as a controller or watch the big screen live as a viewer. No app, no install.">
+<meta property="og:description" content="Got a room code? Type it in, then join as a player on your phone or watch the big screen live as a viewer. No app, no install.">
 <meta property="og:url" content="https://mdwf.app/">
 <meta property="og:image" content="https://mdwf.app/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="MassDebate: type the code from the host screen, then join as a controller or watch as a viewer.">
+<meta property="og:image:alt" content="MassDebate: type the code from the host screen, then join as a player or watch as a viewer.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Join a game: MassDebate with Friends">
 <meta name="twitter:description" content="Type the room code. Play on your phone, or watch the big screen live.">
@@ -38,95 +38,76 @@
   html { overflow-x: clip; }
   html, body { min-height: 100%; }
   body {
-    background: var(--dark); color: var(--text);
-    font-family: 'Outfit', system-ui, sans-serif;
+    font-family: 'Outfit', system-ui, sans-serif; color: var(--text);
+    background:
+      radial-gradient(circle at 12% 0%, rgba(255,153,0,.30), transparent 45%),
+      radial-gradient(circle at 95% 100%, rgba(255,224,102,.22), transparent 45%),
+      var(--dark);
+    background-attachment: fixed;
     display: flex; flex-direction: column; align-items: center;
-    min-height: 100dvh; padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
-    overflow-x: hidden; position: relative;
+    min-height: 100dvh; padding: 22px 16px calc(18px + env(safe-area-inset-bottom));
+    overflow-x: hidden;
   }
-  .orb { position: fixed; border-radius: 50%; filter: blur(90px); opacity: .5; pointer-events: none; z-index: 0; }
-  .orb1 { width: 420px; height: 420px; background: var(--a1s); top: -160px; left: -140px; }
-  .orb2 { width: 460px; height: 460px; background: var(--a2s); bottom: -200px; right: -160px; }
 
-  .brandbar { position: relative; z-index: 1; display: flex; align-items: center; gap: 10px; text-decoration: none; margin: 6px 0 24px; }
-  .brandbar svg { width: 34px; height: 34px; transition: rotate .4s var(--spring); }
-  .brandbar:hover svg { rotate: -8deg; }
-  .brandwords { display: flex; flex-direction: column; line-height: 1; }
-  .brandname { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 19px; letter-spacing: -.02em; color: var(--text); }
-  .brandname b { color: var(--a1); font-weight: 700; }
-  .brandsub { font-family: 'JetBrains Mono', monospace; font-size: 7.5px; letter-spacing: .32em; text-transform: uppercase; color: var(--a2); margin-top: 4px; }
+  /* THE CARD LAYOUT (og.png): the crest on the left, the words and the doors on the right. */
+  main { width: 100%; max-width: 1080px; margin: auto 0; display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 18px; }
+  .crest-link { display: block; line-height: 0; border-radius: 30px; }
+  .crest-link:focus-visible { outline: 3px solid var(--a2); outline-offset: 6px; }
+  .crest { width: 118px; height: 118px; filter: drop-shadow(0 0 18px rgba(255,153,0,.5)) drop-shadow(0 0 40px rgba(255,153,0,.22)); animation: bob 5s ease-in-out infinite; }
+  @keyframes bob { 50% { translate: 0 -6px; rotate: -2deg; } }
+  .right { width: 100%; max-width: 460px; display: flex; flex-direction: column; align-items: stretch; text-align: center; }
+  .kicker { font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: .3em; text-transform: uppercase; color: var(--a2); }
+  .wordmark { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(50px, 14vw, 92px); letter-spacing: -.03em; line-height: 1; margin: 10px 0 12px; }
+  .wordmark b { color: var(--a1); font-weight: 700; }
+  .pitch { font-size: 18px; line-height: 1.4; color: rgba(255,255,255,.78); }
+  .pitch span { display: block; }
 
-  main { position: relative; z-index: 1; width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 14px; }
-  .card {
-    background: linear-gradient(160deg, rgba(255,255,255,.035), rgba(255,255,255,0)), var(--card);
-    border: 1px solid rgba(255,255,255,.1); border-radius: 26px; padding: 26px 22px;
-    box-shadow: 0 8px 0 var(--under), 0 24px 60px rgba(0,0,0,.45);
-    animation: pop .5s var(--spring) backwards;
+  /* THE CODE: one real input over four tiles. Typing, paste and backspace are the input's own. */
+  .tiles { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; max-width: 320px; margin: 24px auto 0; }
+  .tile {
+    aspect-ratio: 64 / 78; border-radius: 16px; background: var(--card); border: 2px solid rgba(255,153,0,.45);
+    box-shadow: 0 6px 0 var(--under); display: grid; place-items: center;
+    font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(30px, 9vw, 42px); color: var(--a2);
+    transition: border-color .15s, box-shadow .15s, translate .25s var(--spring);
   }
-  @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.96); } }
-  .kicker { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: var(--a2); text-align: center; margin-bottom: 12px; }
-  h1 { font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 700; text-align: center; letter-spacing: -.02em; margin-bottom: 18px; }
-  h1 em { font-style: normal; color: var(--a1); }
-
+  .tile.is-empty { color: rgba(255,255,255,.16); }
+  .tile.is-filled { animation: tilepop .28s var(--spring); }
+  @keyframes tilepop { 40% { scale: 1.1; } }
+  .tiles.is-focus .tile.is-next { border-color: var(--a1); box-shadow: 0 6px 0 var(--under), 0 0 0 4px var(--a1s); translate: 0 -3px; }
+  .tiles.is-focus .tile.is-next::after { content: ''; width: 3px; height: 44%; border-radius: 2px; background: var(--a1); animation: blink 1s steps(1) infinite; grid-area: 1 / 1; }
+  .tiles.is-focus .tile.is-next.is-empty { color: transparent; }
+  @keyframes blink { 50% { opacity: 0; } }
   #code {
-    width: 100%; background: rgba(0,0,0,.45); color: var(--text);
-    border: 2px solid rgba(255,255,255,.14); border-radius: 20px;
-    font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 46px;
-    text-align: center; letter-spacing: .3em; text-indent: .3em; text-transform: uppercase;
-    padding: 16px 8px; outline: none; caret-color: var(--a1); transition: border-color .15s, box-shadow .15s;
+    position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2;
+    border: 0; outline: 0; background: transparent; color: transparent; caret-color: transparent;
+    font-size: 16px; letter-spacing: 0; text-indent: -9999px; cursor: text; -webkit-text-fill-color: transparent;
   }
-  #code:focus { border-color: var(--a1); box-shadow: 0 0 0 4px var(--a1s); }
-  #code::placeholder { color: rgba(255,255,255,.18); }
-  .hint { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: rgba(255,255,255,.45); text-align: center; margin-top: 10px; }
+  #code::selection { background: transparent; }
+  .hint { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(255,255,255,.45); margin-top: 14px; min-height: 1.3em; }
+  .hint b { color: var(--a2); letter-spacing: .2em; }
+  .hint.is-open { color: var(--a2); }
 
-  /* The pressy button (the app's feel kit): a solid underside, squashes on press. */
-  .btn {
-    display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
-    border: 0; background: linear-gradient(90deg, var(--a1), var(--a2)); color: #120c00;
-    font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 19px; letter-spacing: .05em;
-    padding: 16px 10px; border-radius: 20px; cursor: pointer; margin-top: 18px;
-    text-transform: uppercase; text-decoration: none;
-    box-shadow: 0 6px 0 #7a4a00, 0 0 30px rgba(255,153,0,.22);
-    transition: translate .14s var(--spring), scale .14s var(--spring), box-shadow .14s ease, filter .15s;
+  /* THE TWO DOORS */
+  .doors { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 20px; }
+  .door {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
+    font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 19px; letter-spacing: .01em;
+    padding: 15px 18px; border-radius: 18px; cursor: pointer; border: 2px solid transparent;
+    transition: translate .14s var(--spring), scale .14s var(--spring), box-shadow .14s ease, filter .15s, opacity .2s, background .15s;
   }
-  .btn:hover { filter: brightness(1.06); }
-  .btn:active { translate: 0 5px; scale: .98 .96; box-shadow: 0 1px 0 #7a4a00; transition-duration: .06s; }
-  .btn[disabled] { opacity: .5; cursor: wait; }
-  .btn:focus-visible, .choice:focus-visible, .btn-ghost:focus-visible { outline: 3px solid var(--a2); outline-offset: 3px; }
-  .btn-ghost {
-    display: block; width: 100%; margin-top: 10px; background: none; border: none; cursor: pointer;
-    font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: .06em;
-    color: var(--a2); text-decoration: underline; text-underline-offset: 3px; opacity: .85; padding: 8px;
-  }
-  .btn-ghost:hover { opacity: 1; }
+  .door:focus-visible { outline: 3px solid var(--a2); outline-offset: 3px; }
+  .door-main { color: #120c00; background: linear-gradient(90deg, var(--a1), var(--a2)); box-shadow: 0 6px 0 #7a4a00, 0 0 30px rgba(255,153,0,.22); }
+  .door-main:hover { filter: brightness(1.06); }
+  .door-main:active { translate: 0 5px; scale: .98 .96; box-shadow: 0 1px 0 #7a4a00; transition-duration: .06s; }
+  .door-soft { color: var(--a2); border-color: rgba(255,224,102,.55); background: rgba(255,224,102,.05); box-shadow: 0 6px 0 var(--under); }
+  .door-soft:hover { background: rgba(255,224,102,.12); }
+  .door-soft:active { translate: 0 5px; scale: .98 .96; box-shadow: 0 1px 0 var(--under); transition-duration: .06s; }
+  .doors.is-resting .door { opacity: .55; filter: saturate(.7); }
+  .doors.is-resting .door:hover { opacity: .8; }
+  .door[disabled] { opacity: .5; cursor: wait; }
 
-  /* THE TWO DOORS: after the code resolves. */
-  #choices { display: none; margin-top: 18px; }
-  #choices.show { display: block; }
-  .found { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--a2); text-align: center; margin-bottom: 12px; }
-  .found b { color: var(--text); letter-spacing: .3em; }
-  .choice {
-    position: relative; display: grid; grid-template-columns: 52px 1fr; align-items: center; gap: 4px 14px;
-    width: 100%; text-align: left; cursor: pointer; text-decoration: none; color: var(--text);
-    background: rgba(255,255,255,.04); border: 2px solid rgba(255,255,255,.12); border-radius: 22px;
-    padding: 16px 16px; margin-top: 12px; font-family: inherit;
-    box-shadow: 0 6px 0 var(--under);
-    transition: translate .14s var(--spring), scale .14s var(--spring), box-shadow .14s ease, border-color .15s, background .15s;
-    animation: pop .45s var(--spring) backwards;
-  }
-  .choice + .choice { animation-delay: .07s; }
-  .choice:hover { border-color: rgba(255,153,0,.6); background: rgba(255,153,0,.07); }
-  .choice:active { translate: 0 5px; scale: .98; box-shadow: 0 1px 0 var(--under); transition-duration: .06s; }
-  .choice .ico { grid-row: span 2; width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; font-size: 28px; background: #0d0d0d; border: 2px solid rgba(255,255,255,.1); }
-  .choice .t { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 19px; letter-spacing: -.01em; }
-  .choice .s { font-size: 13.5px; line-height: 1.4; color: rgba(255,255,255,.62); }
-  .choice.is-main { border-color: var(--a1); background: linear-gradient(120deg, rgba(255,153,0,.16), rgba(255,224,102,.06)); box-shadow: 0 6px 0 #6b4100, 0 0 28px rgba(255,153,0,.18); }
-  .choice.is-main .ico { border-color: rgba(255,153,0,.6); }
-  .choice.is-main .t { color: var(--a1); }
-  .choice.is-main:active { box-shadow: 0 1px 0 #6b4100; }
-  .choice[disabled] { opacity: .5; cursor: wait; }
-
-  #pwBlock { display: none; margin-top: 14px; }
+  .below { width: 100%; }
+  #pwBlock { display: none; margin-top: 18px; }
   #pwBlock.show { display: block; animation: rise .25s ease; }
   @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   #pwLabel { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--a1); margin-bottom: 8px; display: block; }
@@ -138,12 +119,19 @@
   }
   #pw:focus { border-color: var(--a1); box-shadow: 0 0 0 4px var(--a1s); }
   #pw.is-bad { border-color: var(--hot); box-shadow: 0 0 0 4px rgba(239,68,68,.25); }
-  .pw-say { min-height: 0; font-size: 13px; color: #ffb4b4; text-align: center; margin-top: 8px; }
+  .pw-say { font-size: 13px; color: #ffb4b4; text-align: center; margin-top: 8px; }
   .pw-say:empty { display: none; }
   .voyeurNote { font-size: 13px; line-height: 1.5; color: rgba(255,255,255,.6); margin-top: 10px; text-align: center; }
   .voyeurNote b { color: var(--a2); font-weight: 600; }
+  .btn-ghost {
+    display: block; width: 100%; margin-top: 8px; background: none; border: none; cursor: pointer;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: .06em;
+    color: var(--a2); text-decoration: underline; text-underline-offset: 3px; opacity: .85; padding: 8px;
+  }
+  .btn-ghost:hover { opacity: 1; }
+  .btn-ghost:focus-visible { outline: 3px solid var(--a2); outline-offset: 2px; border-radius: 8px; }
 
-  #status { display: none; margin-top: 14px; border-radius: 14px; padding: 12px 14px; font-size: 14px; line-height: 1.45; text-align: center; }
+  #status { display: none; margin-top: 16px; border-radius: 14px; padding: 12px 14px; font-size: 14px; line-height: 1.45; text-align: center; }
   #status.err { display: block; background: rgba(255,153,0,.1); border: 1px solid rgba(255,153,0,.4); color: #FFE2BF; }
   #status.ok { display: block; background: rgba(255,224,102,.08); border: 1px solid rgba(255,224,102,.35); color: #FFF3C4; }
   #status .mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; word-break: break-all; }
@@ -155,11 +143,12 @@
   #offline .inner { border: 1px dashed rgba(255,224,102,.4); border-radius: 18px; padding: 16px; margin-top: 16px; font-size: 14.5px; line-height: 1.55; color: rgba(255,255,255,.78); text-align: center; }
   #offline a { color: var(--a1); font-weight: 600; }
 
-  details { margin-top: 4px; }
-  details .card2 { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08); border-radius: 18px; padding: 14px 16px; margin-top: 10px; font-size: 14px; line-height: 1.55; color: rgba(255,255,255,.7); }
-  summary { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.5); text-align: center; cursor: pointer; list-style: none; padding: 6px; }
+  details { margin-top: 18px; }
+  details .card2 { background: rgba(22,22,22,.85); border: 1px solid rgba(255,255,255,.08); border-radius: 18px; padding: 14px 16px; margin-top: 10px; font-size: 14px; line-height: 1.55; color: rgba(255,255,255,.7); text-align: left; }
+  summary { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.5); text-align: center; cursor: pointer; list-style: none; padding: 6px; border-radius: 8px; }
   summary::-webkit-details-marker { display: none; }
   summary:hover { color: var(--a2); }
+  summary:focus-visible { outline: 3px solid var(--a2); outline-offset: 2px; }
   .card2 b { color: var(--text); }
   .card2 .rolegrid { display: grid; gap: 8px; margin-top: 10px; }
   .card2 .role { display: flex; gap: 8px; align-items: baseline; }
@@ -168,73 +157,87 @@
   .card2 .role:nth-child(3) i { color: var(--hot); }
   .card2 .role:nth-child(4) i { color: #9fd3ff; }
 
-  footer { position: relative; z-index: 1; margin-top: auto; padding-top: 26px; display: flex; gap: 10px 18px; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .06em; color: rgba(255,255,255,.4); flex-wrap: wrap; justify-content: center; text-align: center; }
+  footer { margin-top: 28px; display: flex; gap: 10px 18px; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .06em; color: rgba(255,255,255,.4); flex-wrap: wrap; justify-content: center; text-align: center; }
   footer a { color: rgba(255,255,255,.55); text-decoration: none; }
   footer a:hover { color: var(--a2); }
   @media (max-width: 480px) { footer .sep { display: none; } }
 
+  /* WIDE: the share card, for real. */
+  @media (min-width: 900px) {
+    body { padding: 28px 40px; }
+    main { grid-template-columns: 400px minmax(0, 1fr); align-items: center; justify-items: stretch; gap: 56px; }
+    .crest-link { justify-self: center; }
+    .crest { width: 360px; height: 360px; filter: drop-shadow(0 0 30px rgba(255,153,0,.5)) drop-shadow(0 0 70px rgba(255,153,0,.2)); }
+    .right { max-width: 600px; text-align: left; }
+    .kicker { font-size: 18px; }
+    .pitch { font-size: 26px; line-height: 1.35; }
+    .tiles { grid-template-columns: repeat(4, 72px); gap: 12px; max-width: none; width: max-content; margin: 28px 0 0; }
+    .tile { font-size: 42px; }
+    .hint { text-align: left; }
+    .doors { grid-template-columns: max-content max-content; gap: 16px; margin-top: 22px; }
+    .door { width: auto; padding: 14px 22px; font-size: 20px; }
+    .voyeurNote, .pw-say, #status, summary { text-align: left; }
+    #pw { text-align: left; padding-left: 16px; max-width: 420px; }
+    .btn-ghost { text-align: left; padding-left: 0; }
+    details .card2 { max-width: 560px; }
+  }
   @media (max-width: 360px) {
-    #code { font-size: 38px; }
-    .choice { grid-template-columns: 44px 1fr; padding: 14px 12px; }
-    .choice .ico { width: 44px; height: 44px; font-size: 24px; }
+    .tiles { gap: 8px; }
+    .door { font-size: 17px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .card, .choice, #pwBlock.show, #offline.show, .shake { animation: none; }
-    .btn, .choice, .brandbar svg { transition: none; }
+    .crest, .tile.is-filled, #pwBlock.show, #offline.show, .shake, .tiles.is-focus .tile.is-next::after { animation: none; }
+    .door, .tile { transition: none; }
+    .tiles.is-focus .tile.is-next { translate: none; }
   }
 </style>
 </head>
 <body>
-  <div class="orb orb1"></div><div class="orb orb2"></div>
-
-  <a class="brandbar" id="homeLink" href="https://www.massdebatewithfriends.com">
-    <svg viewBox="0 0 96 96" aria-hidden="true">
-      <path d="M48 4 L84 25 L84 67 L48 88 L12 67 L12 25 Z" fill="#161616" stroke="#FF9900" stroke-width="4.5" stroke-linejoin="round"/>
-      <path d="M48 11 L78 28 L78 63 L48 80 L18 63 L18 28 Z" fill="none" stroke="#FFE066" stroke-width="1.6" opacity=".45"/>
-      <g transform="translate(48 48) scale(.8) translate(-48 -48)">
-        <g transform="rotate(-30 48 60)">
-          <rect x="34" y="2" width="28" height="30" rx="11" fill="#FF9900"/>
-          <rect x="40" y="8" width="16" height="3.2" rx="1.6" fill="#090909" opacity=".5"/>
-          <rect x="40" y="14" width="16" height="3.2" rx="1.6" fill="#090909" opacity=".5"/>
-          <rect x="40" y="20" width="16" height="3.2" rx="1.6" fill="#090909" opacity=".5"/>
-          <path d="M38 32 L58 32 L54.5 78 Q48 83 41.5 78 Z" fill="#FF9900"/>
-        </g>
-        <g transform="rotate(30 48 60)">
-          <rect x="34" y="2" width="28" height="30" rx="11" fill="#FFE066"/>
-          <rect x="40" y="8" width="16" height="3.2" rx="1.6" fill="#090909" opacity=".5"/>
-          <rect x="40" y="14" width="16" height="3.2" rx="1.6" fill="#090909" opacity=".5"/>
-          <rect x="40" y="20" width="16" height="3.2" rx="1.6" fill="#090909" opacity=".5"/>
-          <path d="M38 32 L58 32 L54.5 78 Q48 83 41.5 78 Z" fill="#FFE066"/>
-        </g>
-      </g>
-    </svg>
-    <span class="brandwords">
-      <span class="brandname">Mass<b>Debate</b></span>
-      <span class="brandsub">With Friends</span>
-    </span>
-  </a>
-
   <main>
-    <div class="card" id="joinCard">
-      <div class="kicker">Got a room code?</div>
-      <h1>Join the <em>debate</em></h1>
+    <a class="crest-link" id="homeLink" href="https://www.massdebatewithfriends.com" aria-label="MassDebate with Friends, the main site">
+      <svg class="crest" viewBox="0 0 96 96" aria-hidden="true">
+        <path d="M48 4 L84 25 L84 67 L48 88 L12 67 L12 25 Z" fill="#161616" stroke="#FF9900" stroke-width="4.5" stroke-linejoin="round"/>
+        <path d="M48 11 L78 28 L78 63 L48 80 L18 63 L18 28 Z" fill="none" stroke="#FFE066" stroke-width="1.6" opacity=".45"/>
+        <g transform="translate(48 48) scale(.8) translate(-48 -48)">
+          <g transform="rotate(-30 48 60)">
+            <rect x="34" y="2" width="28" height="30" rx="11" fill="#FF9900"/>
+            <rect x="40" y="8" width="16" height="3.2" rx="1.6" fill="#090909" opacity=".5"/>
+            <rect x="40" y="14" width="16" height="3.2" rx="1.6" fill="#090909" opacity=".5"/>
+            <rect x="40" y="20" width="16" height="3.2" rx="1.6" fill="#090909" opacity=".5"/>
+            <path d="M38 32 L58 32 L54.5 78 Q48 83 41.5 78 Z" fill="#FF9900"/>
+          </g>
+          <g transform="rotate(30 48 60)">
+            <rect x="34" y="2" width="28" height="30" rx="11" fill="#FFE066"/>
+            <rect x="40" y="8" width="16" height="3.2" rx="1.6" fill="#090909" opacity=".5"/>
+            <rect x="40" y="14" width="16" height="3.2" rx="1.6" fill="#090909" opacity=".5"/>
+            <rect x="40" y="20" width="16" height="3.2" rx="1.6" fill="#090909" opacity=".5"/>
+            <path d="M38 32 L58 32 L54.5 78 Q48 83 41.5 78 Z" fill="#FFE066"/>
+          </g>
+        </g>
+      </svg>
+    </a>
 
-      <input id="code" placeholder="A7K2" maxlength="4" autocomplete="off" autocapitalize="characters"
-             autocorrect="off" spellcheck="false" inputmode="text" aria-label="Room code">
-      <div class="hint">4 characters from the host screen. Never an I, O, 0 or 1.</div>
+    <div class="right" id="joinCard">
+      <div class="kicker">mdwf.app</div>
+      <h1 class="wordmark">Mass<b>Debate</b></h1>
+      <p class="pitch"><span>Type the code from the host screen.</span><span>Play on your phone, or watch the big screen.</span></p>
 
-      <button class="btn" id="joinBtn" type="button">Let me in</button>
+      <label class="tiles" id="tiles" for="code">
+        <span class="tile is-empty" aria-hidden="true">A</span><span class="tile is-empty" aria-hidden="true">7</span><span class="tile is-empty" aria-hidden="true">K</span><span class="tile is-empty" aria-hidden="true">2</span>
+        <input id="code" maxlength="9" autocomplete="off" autocapitalize="characters"
+               autocorrect="off" spellcheck="false" inputmode="text" enterkeyhint="go" aria-label="Room code, 4 characters">
+      </label>
+      <div class="hint" id="hint">4 characters from the host screen. Never an I, O, 0 or 1.</div>
 
-      <!-- THE TWO DOORS: shown once the code is a real room. -->
+      <!-- THE TWO DOORS: pressing one finds the room, then goes through that door. -->
       <div id="choices" role="group" aria-label="How do you want in?">
-        <div class="found" id="foundLine">Room <b id="foundCode">----</b> is open</div>
+        <div class="doors is-resting" id="doors">
+          <button class="door door-main" id="asController" type="button"><span aria-hidden="true">🎮</span> Join as a player</button>
+          <button class="door door-soft" id="asViewer" type="button"><span aria-hidden="true">📺</span> Watch as a viewer</button>
+        </div>
+      </div>
 
-        <button class="choice is-main" id="asController" type="button">
-          <span class="ico" aria-hidden="true">🎮</span>
-          <span class="t">Join as a controller</span>
-          <span class="s">Your phone is the remote. Vote, argue, heckle, get dragged on stage.</span>
-        </button>
-
+      <div class="below">
         <div id="pwBlock">
           <label id="pwLabel" for="pw">This room has a password</label>
           <input id="pw" type="password" placeholder="Ask the host nicely" autocomplete="off" aria-label="Room password">
@@ -244,38 +247,32 @@
           <button class="btn-ghost" id="voyeurBtn" type="button">No password, slip in the back door</button>
         </div>
 
-        <button class="choice" id="asViewer" type="button">
-          <span class="ico" aria-hidden="true">📺</span>
-          <span class="t">Watch as a viewer</span>
-          <span class="s">The big screen, live in your browser. Best on a laptop or TV. Nothing to press, nothing to break.</span>
-        </button>
-      </div>
+        <div id="status" role="alert"></div>
 
-      <div id="status" role="alert"></div>
-
-      <div id="offline">
-        <div class="inner">
-          🚧 <b>Closed alpha.</b> The public room line isn't switched on yet. If your host sent a
-          link or QR, use that one: it carries the connection.<br>
-          Want in early? Alpha nights run through
-          <a id="patreonLink" href="https://www.patreon.com/MassDebateWithFriends">Patreon</a>.
+        <div id="offline">
+          <div class="inner">
+            🚧 <b>Closed alpha.</b> The public room line isn't switched on yet. If your host sent a
+            link or QR, use that one: it carries the connection.<br>
+            Want in early? Alpha nights run through
+            <a id="patreonLink" href="https://www.patreon.com/MassDebateWithFriends">Patreon</a>.
+          </div>
         </div>
+
+        <details>
+          <summary>What is this? Who gets in?</summary>
+          <div class="card2">
+            <b>MassDebate with Friends</b> is a party game about arguing. One screen hosts the show;
+            everyone else joins from their phone with the 4-character code on that screen.
+            <div class="rolegrid">
+              <div class="role"><i>Debater</i><span>On stage, arguing. The room decides your fate.</span></div>
+              <div class="role"><i>Voyeur</i><span>In the crowd: voting, swaying, heckling through live Q&amp;A, and free to hop on stage when the game allows.</span></div>
+              <div class="role"><i>Spectator</i><span>Watch-only on your phone, in the dark. Locked rooms start newcomers here; ask to join and the host can wave you in.</span></div>
+              <div class="role"><i>Viewer</i><span>The big screen, live in a browser. Changed your mind? Press "Play on this device" and you're a player.</span></div>
+            </div>
+          </div>
+        </details>
       </div>
     </div>
-
-    <details>
-      <summary>What is this? Who gets in?</summary>
-      <div class="card2">
-        <b>MassDebate with Friends</b> is a party game about arguing. One screen hosts the show;
-        everyone else joins from their phone with the 4-character code on that screen.
-        <div class="rolegrid">
-          <div class="role"><i>Debater</i><span>On stage, arguing. The room decides your fate.</span></div>
-          <div class="role"><i>Voyeur</i><span>In the crowd: voting, swaying, heckling through live Q&amp;A, and free to hop on stage when the game allows.</span></div>
-          <div class="role"><i>Spectator</i><span>Watch-only on your phone, in the dark. Locked rooms start newcomers here; ask to join and the host can wave you in.</span></div>
-          <div class="role"><i>Viewer</i><span>The big screen, live in a browser. Changed your mind? Press "Play on this device" and you're a controller.</span></div>
-        </div>
-      </div>
-    </details>
   </main>
 
   <footer>
@@ -342,9 +339,8 @@ function mdwfCore(CFG) {
 
   var $ = function (id) { return document.getElementById(id); };
   var codeEl = $('code'), pwEl = $('pw'), pwBlock = $('pwBlock'),
-      joinBtn = $('joinBtn'), voyeurBtn = $('voyeurBtn'),
-      choicesEl = $('choices'), foundCode = $('foundCode'),
-      ctlBtn = $('asController'), viewBtn = $('asViewer'),
+      voyeurBtn = $('voyeurBtn'), choicesEl = $('choices'), doorsEl = $('doors'),
+      ctlBtn = $('asController'), viewBtn = $('asViewer'), hintEl = $('hint'), tilesEl = $('tiles'),
       statusEl = $('status'), offlineEl = $('offline'), cardEl = $('joinCard');
 
   $('patreonLink').href = CFG.PATREON; $('patreonFoot').href = CFG.PATREON;
@@ -378,6 +374,30 @@ function mdwfCore(CFG) {
 
   // The room we found: { code, origin, hasPassword }.
   var room = null;
+  var HINT = hintEl.innerHTML;
+
+  /* ── The four tiles: a picture of the one real input ────────────────── */
+  var PLACE = ['A', '7', 'K', '2'];
+  function paintTiles() {
+    var tiles = tilesEl.querySelectorAll ? tilesEl.querySelectorAll('.tile') : [];
+    var v = codeEl.value || '';
+    for (var i = 0; i < tiles.length; i++) {
+      var t = tiles[i];
+      var ch = v.charAt(i);
+      var was = t.getAttribute('data-ch') || '';
+      t.textContent = ch || PLACE[i];
+      t.setAttribute('data-ch', ch);
+      t.classList.toggle('is-empty', !ch);
+      t.classList.toggle('is-next', i === Math.min(v.length, 3) && !(v.length === 4 && i === 3 && ch));
+      if (ch && ch !== was) { t.classList.remove('is-filled'); void t.offsetWidth; t.classList.add('is-filled'); }
+      else if (!ch) t.classList.remove('is-filled');
+    }
+    doorsEl.classList.toggle('is-resting', !core.CODE_RE.test(v));
+  }
+  codeEl.addEventListener('focus', function () { tilesEl.classList.add('is-focus'); });
+  codeEl.addEventListener('blur', function () { tilesEl.classList.remove('is-focus'); });
+  // The caret always sits at the end: the tiles fill left to right.
+  codeEl.addEventListener('select', function () { try { var n = codeEl.value.length; codeEl.setSelectionRange(n, n); } catch (e) { /* fine */ } });
 
   /* ── UI helpers ─────────────────────────────────────────────────────── */
   function status(kind, html) {
@@ -391,24 +411,22 @@ function mdwfCore(CFG) {
   function hostLabel(origin) {
     try { return new URL(origin).host; } catch (e) { return origin; }
   }
-  function busy(on) {
-    joinBtn.disabled = on; ctlBtn.disabled = on; viewBtn.disabled = on;
-  }
+  function busy(on) { ctlBtn.disabled = on; viewBtn.disabled = on; }
   function showChoices(r) {
     room = r;
-    foundCode.textContent = r.code;
-    joinBtn.style.display = 'none';
     choicesEl.classList.add('show');
+    hintEl.className = 'hint is-open';
+    hintEl.innerHTML = 'Room <b id="foundCode">' + r.code + '</b> is open. Pick a door.';
     if (r.hasPassword) pwBlock.classList.add('show');
     else pwBlock.classList.remove('show');
     status('', '');
-    try { (r.hasPassword ? pwEl : ctlBtn).focus(); } catch (e) { /* no focus */ }
   }
   function resetChoices() {
     room = null;
     choicesEl.classList.remove('show');
     pwBlock.classList.remove('show');
-    joinBtn.style.display = '';
+    hintEl.className = 'hint';
+    hintEl.innerHTML = HINT;
   }
 
   codeEl.addEventListener('input', function () {
@@ -416,9 +434,10 @@ function mdwfCore(CFG) {
     if (codeEl.value !== v) codeEl.value = v;
     if (room && room.code !== v) resetChoices();
     status('', '');
+    paintTiles();
   });
-  codeEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') { if (room) asController(false); else find(); } });
-  pwEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') asController(false); });
+  codeEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); pick(WANTS_VIEW ? 'viewer' : 'controller'); } });
+  pwEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') pick('controller'); });
   pwEl.addEventListener('input', function () { pwEl.classList.remove('is-bad'); $('pwSay').textContent = ''; });
 
   /* ── The handoffs ───────────────────────────────────────────────────── */
@@ -432,7 +451,7 @@ function mdwfCore(CFG) {
       pwBlock.classList.remove('shake'); void pwBlock.offsetWidth; pwBlock.classList.add('shake');
       return;
     }
-    status('ok', 'Handing you a controller at <span class="mono">' + hostLabel(room.origin) + '</span>...');
+    status('ok', 'Taking you in as a player at <span class="mono">' + hostLabel(room.origin) + '</span>...');
     location.href = core.controllerUrl(room.origin, room.code, asVoyeur ? '' : pw, asVoyeur);
   }
   function goViewer() {
@@ -440,14 +459,25 @@ function mdwfCore(CFG) {
     status('ok', 'Finding you a good seat at <span class="mono">' + hostLabel(room.origin) + '</span>...');
     location.href = core.viewerUrl(room.origin, room.code);
   }
-  function asController(asVoyeur) { if (room) goController(asVoyeur); else find(asVoyeur ? 'voyeur' : 'controller'); }
+  // A door pressed: through it if the room is known, else find the room first.
+  function pick(door) {
+    if (room && room.code === core.cleanCode(codeEl.value)) {
+      if (door === 'viewer') goViewer();
+      else if (door === 'voyeur') goController(true);
+      else goController(false);
+      return;
+    }
+    find(door);
+  }
 
   /* ── Find the room (then offer the two doors, or take the one asked for) */
   function find(then) {
     var code = core.cleanCode(codeEl.value);
     codeEl.value = code;
+    paintTiles();
     if (!core.CODE_RE.test(code)) {
       fail('That code doesn’t look right. It’s <b>4 letters or numbers</b> from the host screen, and never an I, O, 0 or 1.');
+      tilesEl.classList.remove('shake'); void tilesEl.offsetWidth; tilesEl.classList.add('shake');
       codeEl.focus();
       return;
     }
@@ -455,7 +485,7 @@ function mdwfCore(CFG) {
     function resolved(r) {
       showChoices(r);
       if (then === 'viewer') goViewer();
-      else if (then === 'controller' && !r.hasPassword) goController(false);
+      else if (then === 'controller') { if (!r.hasPassword) goController(false); else { try { pwEl.focus(); } catch (e) { /* no focus */ } } }
       else if (then === 'voyeur') goController(true);
     }
 
@@ -491,22 +521,20 @@ function mdwfCore(CFG) {
     fail('This page can’t look rooms up yet. See below.');
   }
 
-  joinBtn.addEventListener('click', function () { find(WANTS_VIEW ? 'viewer' : ''); });
-  ctlBtn.addEventListener('click', function () { goController(false); });
-  viewBtn.addEventListener('click', goViewer);
-  voyeurBtn.addEventListener('click', function () { goController(true); });
+  ctlBtn.addEventListener('click', function () { pick('controller'); });
+  viewBtn.addEventListener('click', function () { pick('viewer'); });
+  voyeurBtn.addEventListener('click', function () { pick('voyeur'); });
 
-  if (WANTS_VIEW) joinBtn.textContent = 'Take me to the show';
-
+  paintTiles();
   // Arriving with a code: look it up at once.
   //   QR one-tap (bridge, a=1, no password): straight to the controller.
   //   The viewer flag: straight to the watch page.
-  //   Otherwise: the two doors, the controller first.
+  //   Otherwise: the two doors, lit, the controller first.
   if (initial) {
     if (BRIDGE_HOST && params.get('a') === '1' && !BRIDGE_PW && !WANTS_VIEW) find('controller');
     else find(WANTS_VIEW ? 'viewer' : '');
   } else {
-    codeEl.focus();
+    try { codeEl.focus(); } catch (e) { /* no focus */ }
   }
 })();
 </script>
